@@ -1,34 +1,34 @@
 class Solution {
+    Map<String, Boolean> mem = new HashMap<>();
+
     public boolean isScramble(String s1, String s2) {
-        if (s1.equals(s2)) {
+        var hash = s1 + s2;
+        if (!mem.containsKey(hash)) {
+            mem.put(hash, is(s1, s2));
+        }
+        return mem.get(hash);
+    }
+
+    private boolean is(String s1, String s2) {
+        if (s1.equals(s2))
             return true;
-        }
-        if (!Arrays.equals(s1.chars().sorted().toArray(), s2.chars().sorted().toArray())) {
-            return false;
-        }
-        
-        int n = s1.length();
-        boolean[][][] dp = new boolean[n][n][n+1];
-        
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                dp[i][j][1] = (s1.charAt(i) == s2.charAt(j));
+        int[] count = new int[26];
+        int[] countF = new int[26];
+        int[] countB = new int[26];
+        for (int i = 0; i < s1.length() - 1; i++) {
+            int j = s2.length() - 1 - i;
+            count[s1.charAt(i) - 'a'] += 1;
+            countF[s2.charAt(i) - 'a'] += 1;
+            countB[s2.charAt(j) - 'a'] += 1;
+            if (Arrays.equals(count, countF)) {
+                if (isScramble(s1.substring(0, i + 1), s2.substring(0, i + 1)) && isScramble(s1.substring(i + 1), s2.substring(i + 1)))
+                    return true;
+            }
+            if (Arrays.equals(count, countB)) {
+                if (isScramble(s1.substring(0, i + 1), s2.substring(j)) && isScramble(s1.substring(i + 1), s2.substring(0, j)))
+                    return true;
             }
         }
-        
-        for (int length = 2; length <= n; length++) {
-            for (int i = 0; i <= n-length; i++) {
-                for (int j = 0; j <= n-length; j++) {
-                    for (int k = 1; k < length; k++) {
-                        if ((dp[i][j][k] && dp[i+k][j+k][length-k]) || (dp[i][j+length-k][k] && dp[i+k][j][length-k])) {
-                            dp[i][j][length] = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        
-        return dp[0][0][n];
+        return false;
     }
 }
